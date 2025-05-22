@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify OTP</title>
+    <link href="{{ url_for('static', filename='style.css') }}" rel="stylesheet" type="text/css" media="all" />
+    <link href="//fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i" rel="stylesheet">
+    <style>
+        .link-button {
+            background: none;
+            border: none;
+            color: rgb(255, 255, 255);
+            text-decoration: underline;
+            cursor: pointer;
+            font-weight: bold;
+            display: block;  /* Ensures the button is on a new line */
+        }
+    
+        .button-container {
+            display: flex;
+            flex-direction: column; /* Stack items vertically */
+            align-items: center;    /* Center items horizontally */
+            justify-content: center; /* Optional: If you want vertical centering within a parent */
+            margin-top: 20px;       /* Add spacing above if needed */
+        }
+        .button-container p {
+        margin-bottom: 10px;    /* Add spacing between the text and the button */
+        }
+    </style>
+</head>
+<body>
+    <div class="main-w3layouts wrapper">
+        <div style="display: flex; justify-content: center; align-items: center; margin-bottom: 20px;">
+            <a href="https://linkedgage.vercel.app/">
+                <img src="{{ url_for('static', filename='images/Linkedgagefull-login.png') }}" alt="Logo" style="max-width: 300px;">
+            </a>
+        </div>
+        <h1>OTP Verification</h1>
+        <div class="main-agileinfo">
+            <div class="agileits-top">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <ul>
+                        {% for category, message in messages %}
+                            <li class="{{ category }}">{{ message }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+                {% endwith %}
+
+                <form method="post">
+                    <input class="text" type="text" name="otp" placeholder="Enter OTP" required="">
+                    <input type="submit" value="VERIFY">
+                </form>
+                <!-- Form for resending OTP without redirection -->
+                <form action="{{ url_for('verify_otp') }}" method="post" class="button-container">
+                    <input type="hidden" name="action" value="resend">
+                    <p>Didn't receive your OTP?</p>
+                    <button type="submit" class="link-button">Resend OTP</button>
+                </form>
+            </div>
+        </div>
+        <ul class="colorlib-bubbles">
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+        </ul>
+    </div>
+</body>
+</html>

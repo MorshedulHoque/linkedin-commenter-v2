@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Your Dashboard Title{% endblock %}</title>
+    <link href="{{ url_for('static', filename='css/output.css') }}" rel="stylesheet">
+</head>
+<body class="bg-gray-100 flex">
+
+    <!-- Sidebar -->
+    <div class="h-screen p-2 space-y-2 w-48 lg:w-52 xl:w-56 2xl:w-60 bg-sky-700 text-white hidden md:block">
+        <div class="flex items-center p-2 space-x-2">
+            <img src="{{ url_for('static', filename='images/Linkedgagefull-dashboard.png') }}" class="image" />
+            <!-- <div>
+                <h2 class="text-sm lg:text-base font-semibold"></h2>
+            </div> -->
+        </div>
+        <div class="divide-y divide-sky-600">
+            <ul class="pt-2 pb-3 space-y-1 text-xs lg:text-sm">
+                <li>
+                    <a href="{{ url_for('dashboard') }}" class="flex items-center p-2 space-x-2 rounded-md {{ 'bg-sky-900' if active_page == 'dashboard' else 'hover:bg-sky-900' }}">
+                        <span class="icon mr-1">
+                            <ion-icon name="home-outline"></ion-icon>
+                        </span>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('table') }}" class="flex items-center p-2 space-x-2 rounded-md {{ 'bg-sky-900' if active_page == 'table' else 'hover:bg-sky-900' }}">
+                        <span class="icon mr-1">
+                            <ion-icon name="people-outline"></ion-icon>
+                        </span>
+                        <span>Table</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('billing') }}" class="flex items-center p-2 space-x-2 rounded-md {{ 'bg-sky-900' if active_page == 'billing' else 'hover:bg-sky-900' }}">
+                        <span class="icon mr-1">
+                            <ion-icon name="chatbubble-outline"></ion-icon>
+                        </span>
+                        <span>Billing</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('notifications') }}" class="flex items-center p-2 space-x-2 rounded-md {{ 'bg-sky-900' if active_page == 'notifications' else 'hover:bg-sky-900' }}">
+                        <span class="icon mr-1">
+                            <ion-icon name="help-outline"></ion-icon>
+                        </span>
+                        <span>Notification</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('profile') }}" class="flex items-center p-2 space-x-2 rounded-md {{ 'bg-sky-900' if active_page == 'profile' else 'hover:bg-sky-900' }}">
+                        <span class="icon mr-1">
+                            <ion-icon name="settings-outline"></ion-icon>
+                        </span>
+                        <span>Profile</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('logout') }}" id="logout" class="flex items-center p-2 space-x-2 rounded-md hover:bg-sky-900">
+                        <span class="icon mr-1">
+                            <ion-icon name="log-out-outline"></ion-icon>
+                        </span>
+                        <span>Sign Out</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Main Content Area -->
+    <div class="flex-1 p-2 sm:p-3 md:p-4 lg:p-5 xl:p-6 flex flex-col">
+        <!-- Navbar (Searchbar and Avatar) -->
+        <div class="navbar bg-base-100 flex justify-between items-center mb-2 lg:mb-3 bg-white">
+            <div class="flex-1 flex justify-center">
+                <div class="form-control">
+                    <input type="text" placeholder="Search" class="input input-bordered w-24 sm:w-40 md:w-48 lg:w-56 xl:w-64 bg-white" />
+                </div>
+            </div>
+            <div class="flex-none gap-2">
+                <div class="dropdown dropdown-end">
+                    <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar">
+                        <div class="w-8 h-8 rounded-full overflow-hidden lg:w-9 lg:h-9 xl:w-10 xl:h-10">
+                            <img
+                                alt="User Avatar"
+                                src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp" />
+                        </div>
+                    </div>
+                    <ul
+                        tabindex="0"
+                        class="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-2 w-44 p-2 shadow bg-white text-black">
+                        <li>
+                            <a href="{{ url_for('profile') }}" class="justify-between">
+                                Profile
+                                <span class="badge bg-white text-black">New</span>
+                            </a>
+                        </li>
+                        <li><a>Settings</a></li>
+                        <li><a href="{{ url_for('logout') }}">Logout</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        {% block content %}
+        <!-- This block will be overridden by each child template -->
+        {% endblock %}
+    </div>
+
+    <!-- =========== Scripts =========  -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script>
+        document.getElementById('logout').addEventListener('click', function() {
+            localStorage.removeItem('activeTabIndex'); // Clear the stored active tab
+        });
+    </script>
+
+    <!-- ====== ionicons ======= -->
+    <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+</body>
+</html>

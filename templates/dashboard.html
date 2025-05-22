@@ -1,0 +1,221 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Your Dashboard Title{% endblock %}
+
+{% block content %}
+<div class="container mx-auto p-2">
+
+    <!-- ========================= Main ==================== -->
+
+    <!-- ======================= Cards ================== -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-4">
+        <div class="bg-sky-700 text-white rounded-lg p-4 shadow-lg flex items-center transition-transform transform hover:scale-105 hover:bg-sky-900">
+            <div class="flex-1">
+                <div class="text-2xl font-bold">{{ full_name }}</div>
+                <div class="text-sm">Welcome</div>
+            </div>
+            <ion-icon name="person-outline" class="text-3xl"></ion-icon>
+        </div>
+
+        <div class="bg-sky-700 text-white rounded-lg p-4 shadow-lg flex items-center transition-transform transform hover:scale-105 hover:bg-sky-900">
+            <div class="flex-1">
+                <div class="text-2xl font-bold" id="requestCount">{{ request_count }}</div>
+                <div class="text-sm">Today's Usage</div>
+            </div>
+            <ion-icon name="bar-chart-outline" class="text-3xl"></ion-icon>
+        </div>
+
+        <div class="bg-sky-700 text-white rounded-lg p-4 shadow-lg flex items-center transition-transform transform hover:scale-105 hover:bg-sky-900">
+            <div class="flex-1">
+                <div class="text-2xl font-bold" id="todaysUsage">10</div>
+                <div class="text-sm">Remaining</div>
+            </div>
+            <ion-icon name="stats-chart-outline" class="text-3xl"></ion-icon>
+        </div>
+
+        <div class="bg-sky-700 text-white rounded-lg p-4 shadow-lg flex items-center transition-transform transform hover:scale-105 hover:bg-sky-900">
+            <div class="flex-1">
+                <div class="text-2xl font-bold" id="totalComments">{{ total_comments }}</div>
+                <div class="text-sm">Total Comments</div>
+            </div>
+            <ion-icon name="chatbubbles-outline" class="text-3xl"></ion-icon>
+        </div>
+    </div>
+
+    <!-- ================ Recent Orders List ================= -->
+    <div class="bg-white rounded-lg shadow-lg">
+        <div class="p-4 border-b flex justify-between items-center">
+            <h2 class="text-lg font-semibold text-black">Recent Orders</h2>
+            <a href="{{ url_for('table') }}" class="text-blue-500 hover:underline flex items-center space-x-2">View All</a>
+        </div>
+
+        <!-- Table: Responsive Design -->
+        <!-- Table: Responsive Design -->
+<div class="overflow-hidden">
+    <div class="table-wrapper  lg:min-h-[320px] xl:min-h-[320px]  2xl:min-h-[350px] rounded-lg shadow-lg border border-gray-300">
+        <!-- Table for large screens -->
+        <table class="min-w-full bg-white border-collapse hidden md:table">
+            <thead class="bg-sky-800 sticky top-0 z-10">
+                <tr>
+                    <th class="py-2 px-2 text-left text-sm font-semibold text-white">#</th>
+                    <th class="py-2 px-2 text-left text-sm font-semibold text-white">Post Text</th>
+                    <th class="py-2 px-2 text-left text-sm font-semibold text-white">Generated Comment</th>
+                    <th class="py-2 px-2 text-left text-sm font-semibold text-white">Emotion</th>
+                    <th class="py-2 px-2 text-left text-sm font-semibold text-white">Date</th>
+                </tr>
+            </thead>
+            <tbody id="commentsTable" class="bg-gray-50 text-gray-700">
+                <!-- Rows will be added by JavaScript -->
+            </tbody>
+        </table>
+
+        <!-- Card view for medium and smaller screens -->
+        <div id="commentsTableMobile" class="md:hidden p-4">
+            <!-- Mobile rows will be inserted here by JavaScript -->
+        </div>
+    </div>
+</div>
+
+
+        <!-- Modal -->
+        <div id="modal" class="fixed inset-0 z-50 hidden bg-gray-800 bg-opacity-75 flex items-center justify-center p-4">
+            <div class="bg-white rounded-lg p-6 w-full max-w-lg">
+                <h2 class="text-xl font-semibold mb-4 text-black">Details</h2>
+                <div id="modalContent" class="text-black"></div>
+                <button id="closeModal" class="mt-4 text-white bg-sky-900 hover:bg-sky-950 px-4 py-2 rounded">Close</button>
+            </div>
+        </div>
+
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script>
+            $(document).ready(function() {
+                // Function to truncate text
+                function truncateText(text, length) {
+                    if (text.length <= length) {
+                        return text;
+                    } else {
+                        return text.substring(0, length) + '...'; // Append ellipsis
+                    }
+                }
+
+                // Function to clean repetitive question marks from the text
+                function cleanText(text) {
+                    return text.replace(/(\?){3,}/g, ''); // Removes three or more consecutive question marks
+                }
+
+                // AJAX request to get the comments
+                $.ajax({
+                    url: '/get_comments_top5/{{ user_id }}', // Flask endpoint
+                    method: 'GET',
+                    dataType: 'json',
+                    success: function(comments) {
+                        var tableBody = $('#commentsTable');
+                        var mobileBody = $('#commentsTableMobile');
+                        comments.forEach(function(comment, index) {
+                            // Clean the text before using it
+                            comment.post_text = cleanText(comment.post_text);
+                            comment.generated_comment = cleanText(comment.generated_comment);
+
+                            var postText = truncateText(comment.post_text, 50); // Adjust length here
+                            var postComment = truncateText(comment.generated_comment, 50); // Adjust length here
+
+                            // For large screen table
+                            var row = `<tr class="hover:bg-gray-200 transition duration-300">
+                                            <th class="py-2 px-2 border-b border-gray-300 text-xs font-medium lg:py-2 lg:px-2 lg:text-xs xl:py-3 xl:px-3 xl:text-xs 2xl:py-3 2xl:px-3 2xl:text-xs">${index + 1}</th>
+                                            <td class="py-2 px-2 border-b border-gray-300 lg:py-2 lg:px-2 lg:text-xs xl:py-3 xl:px-3 xl:text-xs 2xl:py-4 2xl:px-4 2xl:text-xs">
+                                                <div class="text-preview font-medium text-gray-800">${postText}</div>
+                                                <span class="show-more-post text-blue-600 cursor-pointer hover:underline" data-text="${comment.post_text}">Show More</span>
+                                            </td>
+                                            <td class="py-2 px-2 border-b border-gray-300 lg:py-2 lg:px-2 lg:text-xs xl:py-2 xl:px-2 xl:text-xs 2xl:py-3 2xl:px-3 2xl:text-xs">
+                                                <div class="text-preview font-medium text-gray-800">${postComment}</div>
+                                                <span class="show-more-comment text-blue-600 cursor-pointer hover:underline" data-text="${comment.generated_comment}">Show More</span>
+                                            </td>
+                                            <td class="py-2 px-2 border-b border-gray-300 text-xs font-medium lg:py-2 lg:px-2 lg:text-xs xl:py-2 xl:px-2 xl:text-xs 2xl:py-3 2xl:px-3 2xl:text-xs">${comment.emotion}</td>
+                                            <td class="py-2 px-2 border-b border-gray-300 text-xs font-medium lg:py-2 lg:px-2 lg:text-xs xl:py-2 xl:px-2 xl:text-xs 2xl:py-3 2xl:px-3 2xl:text-xs">${new Date(comment.created_at).toLocaleString()}</td>
+                                        </tr>
+                                        `;
+                            tableBody.append(row);
+
+                            // For small screen card layout
+                            var mobileRow = `
+                            <div class="bg-white shadow-md rounded-lg p-4 mb-4">
+                                <div class="mb-2"><strong>Post Text:</strong> ${postText}</div>
+                                <div class="mb-2"><strong>Generated Comment:</strong> ${postComment}</div>
+                                <div class="mb-2"><strong>Emotion:</strong> ${comment.emotion}</div>
+                                <div class="mb-2"><strong>Date:</strong> ${new Date(comment.created_at).toLocaleString()}</div>
+                                <div class="flex justify-between">
+                                    <span class="show-more-post text-blue-600 cursor-pointer hover:underline" data-text="${comment.post_text}">Show More</span>
+                                    <span class="show-more-comment text-blue-600 cursor-pointer hover:underline" data-text="${comment.generated_comment}">Show More</span>
+                                </div>
+                            </div>`;
+                            mobileBody.append(mobileRow);
+                        });
+
+                        // Show modal on click of Show more for post text
+                        $(document).on('click', '.show-more-post', function() {
+                            var fullText = $(this).data('text');
+                            var modalContent = `<p><strong>Post Text:</strong> ${fullText}</p>`;
+                            $('#modalContent').html(modalContent);
+                            $('#modal').removeClass('hidden');
+                        });
+
+                        // Show modal on click of Show more for generated comment
+                        $(document).on('click', '.show-more-comment', function() {
+                            var fullText = $(this).data('text');
+                            var modalContent = `<p><strong>Generated Comment:</strong> ${fullText}</p>`;
+                            $('#modalContent').html(modalContent);
+                            $('#modal').removeClass('hidden');
+                        });
+
+                        // Close modal on clicking the close button
+                        $('#closeModal').on('click', function() {
+                            $('#modal').addClass('hidden');
+                        });
+
+                        // Close modal when clicking outside of it
+                        $('#modal').on('click', function(event) {
+                            if ($(event.target).is('#modal')) {
+                                $('#modal').addClass('hidden');
+                            }
+                        });
+                    },
+                    error: function() {
+                        var tableBody = $('#commentsTable');
+                        tableBody.append(`<tr><td colspan="5" class="py-4 text-center border-b border-gray-300">Failed to load comments. Please try again later.</td></tr>`);
+                    }
+                });
+            });
+        </script>
+    </div>
+
+    <script>
+        // Get user_id from the template context
+        const userId = JSON.parse('{{ user_id }}');
+
+        // Function to fetch the updated request count
+        function fetchRequestCount() {
+            fetch(`/get_request_count/${userId}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Update the request count in the second card
+                    document.getElementById('requestCount').innerText = data.request_count;
+
+                    // Calculate and update today's usage
+                    const requestCount = data.request_count || 0; // Default to 0 if no request count
+                    const todaysUsage = 10 - requestCount; // Calculate today's usage
+                    document.getElementById('todaysUsage').innerText = todaysUsage;
+                })
+                .catch(error => console.error('Error fetching request count:', error));
+        }
+
+        // Call fetchRequestCount initially and every few minutes to keep it updated
+        fetchRequestCount();
+        setInterval(fetchRequestCount, 60000); // Update every minute
+    </script>
+</div>
+{% endblock %}

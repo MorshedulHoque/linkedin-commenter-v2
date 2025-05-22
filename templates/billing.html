@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Your Dashboard Title{% endblock %}
+
+{% block content %}
+<div class="container mt-5 mx-auto px-3 lg:px-6">
+    <h2 class="text-xl lg:text-2xl font-bold mb-4 text-gray-800">Billing</h2>
+
+    <!-- Make table wrapper responsive with horizontal scroll for smaller screens -->
+    <div class="table-wrapper overflow-x-auto max-h-[400px] lg:max-h-[400px] xl:max-h-[500px] 2xl:max-h-[500px] rounded-lg shadow-lg border border-gray-300">
+        <table class="min-w-full bg-white border-collapse hidden md:table">
+            <thead class="bg-sky-800 sticky top-0 z-10">
+                <tr>
+                    <th class="py-2 px-2 text-left text-sm font-semibold text-white">Serial No</th>
+                    <th class="py-2 px-2 text-left text-sm font-semibold text-white">Plan</th>
+                    <th class="py-2 px-2 text-left text-sm font-semibold text-white">Amount</th>
+                    <th class="py-2 px-2 text-left text-sm font-semibold text-white">Date</th>
+                </tr>
+            </thead>
+            <tbody id="commentsTable" class="bg-gray-50 text-gray-700">
+                <!-- Dummy rows -->
+                <tr class="hover:bg-gray-200 transition duration-300">
+                    <td class="py-2 px-2 border-b border-gray-300">1</td>
+                    <td class="py-2 px-2 border-b border-gray-300">Basic Plan</td>
+                    <td class="py-2 px-2 border-b border-gray-300">$10.00</td>
+                    <td class="py-2 px-2 border-b border-gray-300">2024-10-12</td>
+                </tr>
+                <tr class="hover:bg-gray-200 transition duration-300">
+                    <td class="py-2 px-2 border-b border-gray-300">2</td>
+                    <td class="py-2 px-2 border-b border-gray-300">Standard Plan</td>
+                    <td class="py-2 px-2 border-b border-gray-300">$20.00</td>
+                    <td class="py-2 px-2 border-b border-gray-300">2024-10-11</td>
+                </tr>
+                <tr class="hover:bg-gray-200 transition duration-300">
+                    <td class="py-2 px-2 border-b border-gray-300">3</td>
+                    <td class="py-2 px-2 border-b border-gray-300">Premium Plan</td>
+                    <td class="py-2 px-2 border-b border-gray-300">$30.00</td>
+                    <td class="py-2 px-2 border-b border-gray-300">2024-10-10</td>
+                </tr>
+                <tr class="hover:bg-gray-200 transition duration-300">
+                    <td class="py-2 px-2 border-b border-gray-300">4</td>
+                    <td class="py-2 px-2 border-b border-gray-300">Enterprise Plan</td>
+                    <td class="py-2 px-2 border-b border-gray-300">$40.00</td>
+                    <td class="py-2 px-2 border-b border-gray-300">2024-10-09</td>
+                </tr>
+                <tr class="hover:bg-gray-200 transition duration-300">
+                    <td class="py-2 px-2 border-b border-gray-300">5</td>
+                    <td class="py-2 px-2 border-b border-gray-300">Ultimate Plan</td>
+                    <td class="py-2 px-2 border-b border-gray-300">$50.00</td>
+                    <td class="py-2 px-2 border-b border-gray-300">2024-10-08</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

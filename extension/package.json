@@ -1,0 +1,19 @@
+{
+  "name": "your-app-name",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Your application description",
+  "main": "scripts/server.js",
+  "scripts": {
+    "start": "node scripts/server.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "tailwind": "npx tailwindcss -i styles/tailwind.css -o styles/output.css -w"
+  },
+  "dependencies": {
+    "@google/generative-ai": "^0.19.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.0",
+    "node-fetch": "^3.3.2"
+  }
+}

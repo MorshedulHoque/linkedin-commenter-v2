@@ -1,0 +1,15 @@
+.text-preview {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap; /* Prevent text from wrapping */
+}
+
+.text-more {
+    display: none; /* Hidden initially */
+}
+
+.show-more {
+    cursor: pointer;
+    color: blue;
+    text-decoration: underline;
+}

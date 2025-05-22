@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        .content3 { width: 600px; margin: 20px auto; border: 2px solid #ddd; padding: 20px; text-align: center; border-radius: 10px;}
+        .button { background-color: #5c70f3; border: none; color: white; padding: 10px 20px; text-align: center;
+                  text-decoration: none; display: inline-block; font-size: 16px; margin: 4px 2px; cursor: pointer; border-radius: 5px;}
+    </style>
+</head>
+<body>
+    <div class="content3">
+        <a href="https://linkedgage.vercel.app/">
+            <img src="https://drive.google.com/file/d/1LrPe-jbBxIL55QYVUGmW1FqjntrkM4gr/view" alt="Logo" style="max-width: 200px;">
+        </a>
+        <h1>OTP Verification</h1>
+        <p>Hello, <strong>{{ full_name }}</strong></p>
+        <p>Your One-Time Password (OTP) for account verification is:</p>
+        <h2>{{ otp }}</h2>
+        <p>Please enter this OTP in the provided field to proceed. This OTP is valid for 10 minutes.</p>
+        <p>If you did not request this, please ignore this email or contact support if you have concerns.</p>
+    </div>
+</body>
+</html>

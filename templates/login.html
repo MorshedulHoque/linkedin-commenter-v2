@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LinkedGage</title>
+    <link href="{{ url_for('static', filename='style.css') }}" rel="stylesheet" type="text/css" media="all" />
+    <link href="//fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i" rel="stylesheet">
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const emailInput = document.querySelector('[name="email"]');
+            emailInput.addEventListener('input', function() {
+                console.log('Email input changed to:', this.value);
+            });
+        });
+    </script>
+</head>
+<body>
+    <div class="main-w3layouts wrapper">
+        <!-- Logo at the top -->
+        <div style="display: flex; justify-content: center; align-items: center; margin-bottom: 20px;">
+            <a href="https://linkedgage.vercel.app/">
+                <img src="{{ url_for('static', filename='images/Linkedgagefull-login.png') }}" alt="Logo" style="max-width: 300px;">
+            </a>
+        </div>
+
+        <div class="main-agileinfo">
+            <div class="agileits-top">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div>
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }}" role="alert">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                {% endwith %}
+
+                <form method="post">
+                    <input class="text email" type="email" name="email" placeholder="Email" required="" autocomplete="email">
+                    <input class="text" type="password" name="password" placeholder="Password" required="" autocomplete="current-password">
+                    <div class="wthree-text">
+                        <label class="anim">
+                            <input type="checkbox" class="checkbox" required="">
+                            <span>Remember Me</span>
+                        </label>
+                        <a href="/forgot_password" style="float: right; margin-top: 8px; color: white;">Forgot Password?</a>
+                        <div class="clear"></div>
+                    </div>
+                    <input type="submit" value="SIGN IN">
+                </form>
+                <p>Don't have an Account? <a href="{{ url_for('register', ext_id=ext_id) if ext_id else url_for('register') }}"> SignUp Now!</a></p>
+            </div>
+        </div>
+        <ul class="colorlib-bubbles">
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+        </ul>
+    </div>
+</body>
+</html>
