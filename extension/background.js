@@ -1,6 +1,6 @@
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.action === "login") {
-        const loginUrl = `http://127.0.0.1:5000/login?ext_id=${chrome.runtime.id}`;
+        const loginUrl = `https://dashboard.linkedgage.com/login?ext_id=${chrome.runtime.id}`;
         chrome.identity.launchWebAuthFlow({
             url: loginUrl,
             interactive: true
@@ -42,7 +42,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         return true;
     } 
     else if (request.action === "register") {
-        const registerUrl = `http://127.0.0.1:5000/register?ext_id=${chrome.runtime.id}`;
+        const registerUrl = `https://dashboard.linkedgage.com/register?ext_id=${chrome.runtime.id}`;
         chrome.identity.launchWebAuthFlow({
             url: registerUrl,
             interactive: true
@@ -57,7 +57,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         return true;
     }
     else if (request.action === "logout") {
-        fetch('http://127.0.0.1:5000/logout', {
+        fetch('https://dashboard.linkedgage.com/logout', {
             method: 'GET', // Assuming GET is acceptable for your logout route
             credentials: 'include' // Important to handle cookies if using session-based auth
         }).then(() => {
@@ -73,7 +73,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     }
     else if (request.action === "fetchRealTimeRequestCount") {
         const userId = request.userId;
-        const fetchUrl = `http://127.0.0.1:5000/get_request_count/${userId}`;
+        const fetchUrl = `https://dashboard.linkedgage.com/get_request_count/${userId}`;
 
         fetch(fetchUrl)
         .then(response => response.json())

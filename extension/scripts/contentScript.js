@@ -281,7 +281,7 @@ function showLimitReachedPopup() {
 async function generateComment(postText, emotion, commentBox, popup) {
   try {
     const userId = await getUserId();
-    const response = await fetch('http://localhost:3000/generate-comment', {
+    const response = await fetch('https://api.linkedgage.com/generate-comment', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json; charset=utf-8' },
       body: JSON.stringify({ text: postText, emotion: emotion.text, user_id: userId })

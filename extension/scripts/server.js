@@ -19,7 +19,7 @@ app.post('/generate-comment', async (req, res) => {
 
   // Check usage limit by calling the Flask API
   try {
-    const usageResponse = await fetch('http://127.0.0.1:5000/check_usage', {
+    const usageResponse = await fetch('https://dashboard.linkedgage.com/check_usage', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json; charset=utf-8'
@@ -62,7 +62,7 @@ app.post('/generate-comment', async (req, res) => {
     }
 
     // Log the generated comment into the database
-    await fetch('http://127.0.0.1:5000/log_comment', {
+    await fetch('https://dashboard.linkedgage.com/log_comment', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json; charset=utf-8'
@@ -80,5 +80,5 @@ app.post('/generate-comment', async (req, res) => {
 });
 
 app.listen(port, () => {
-  console.log(`Server running at http://localhost:${port}`);
+  console.log(`Server running at https://api.linkedgage.com:${port}`);
 });
