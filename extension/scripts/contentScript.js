@@ -299,14 +299,14 @@ async function generateComment(postText, emotion, commentBox, popup) {
     }
 
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
+      const errorData = await response.json();
       throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
     }
 
     const result = await response.json();
     const commentEditor = commentBox.querySelector('.ql-editor');
     if (commentEditor) {
-      commentEditor.innerText = result.comment || result;
+      commentEditor.innerText = result.comment;
     }
   } catch (error) {
     console.error('Error during comment generation:', error);
@@ -317,7 +317,7 @@ async function generateComment(postText, emotion, commentBox, popup) {
     errorMessage.style.backgroundColor = '#fff';
     errorMessage.style.border = '1px solid red';
     errorMessage.style.borderRadius = '4px';
-    errorMessage.textContent = 'Failed to generate comment. Please try again.';
+    errorMessage.textContent = error.message || 'Failed to generate comment. Please try again.';
     commentBox.appendChild(errorMessage);
     setTimeout(() => {
       if (errorMessage.parentNode) {
