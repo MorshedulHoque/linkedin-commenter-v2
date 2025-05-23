@@ -75,7 +75,7 @@ app.post('/generate-comment', async (req, res) => {
       })
     });
 
-    res.send(response.trim());
+    res.json({ comment: response.trim() });
   });
 });
 
