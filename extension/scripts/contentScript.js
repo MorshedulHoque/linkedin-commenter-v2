@@ -291,23 +291,22 @@ async function generateComment(postText, emotion, commentBox, popup) {
     });
 
     if (response.status === 429) {
-      // Remove the current popup first, if it exists
       if (popup && popup.parentNode) {
         document.body.removeChild(popup);
       }
-      // Show custom limit reached popup
       showLimitReachedPopup();
       return;
     }
 
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
     }
 
-    const result = await response.text();
+    const result = await response.json();
     const commentEditor = commentBox.querySelector('.ql-editor');
     if (commentEditor) {
-      commentEditor.innerText = result;
+      commentEditor.innerText = result.comment || result;
     }
   } catch (error) {
     console.error('Error during comment generation:', error);
@@ -315,11 +314,14 @@ async function generateComment(postText, emotion, commentBox, popup) {
     const errorMessage = document.createElement('div');
     errorMessage.style.color = 'red';
     errorMessage.style.padding = '10px';
+    errorMessage.style.margin = '10px';
+    errorMessage.style.backgroundColor = '#fff';
+    errorMessage.style.border = '1px solid red';
+    errorMessage.style.borderRadius = '4px';
     errorMessage.textContent = 'Failed to generate comment. Please try again.';
     commentBox.appendChild(errorMessage);
     setTimeout(() => errorMessage.remove(), 3000);
   } finally {
-    // Ensure the interaction popup is removed if it hasn't been already
     if (popup && popup.parentNode) {
       document.body.removeChild(popup);
     }

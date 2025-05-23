@@ -24,12 +24,33 @@ CORS(app, resources={
     r"/*": {
         "origins": ["https://www.linkedin.com"],
         "methods": ["GET", "POST", "OPTIONS"],
-        "allow_headers": ["Content-Type", "Authorization", "Accept"],
+        "allow_headers": ["Content-Type", "Authorization", "Accept", "Origin"],
         "expose_headers": ["Content-Type", "Authorization"],
         "supports_credentials": True,
         "max_age": 3600
     }
 })
+
+# Handle OPTIONS requests explicitly
+@app.route('/generate-comment', methods=['OPTIONS'])
+def handle_options():
+    response = app.make_default_options_response()
+    response.headers['Access-Control-Allow-Origin'] = 'https://www.linkedin.com'
+    response.headers['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS'
+    response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization, Accept, Origin'
+    response.headers['Access-Control-Allow-Credentials'] = 'true'
+    response.headers['Access-Control-Max-Age'] = '3600'
+    return response
+
+# Add a route for generating comments
+@app.route('/generate-comment', methods=['POST'])
+def generate_comment():
+    try:
+        data = request.get_json()
+        # Your existing comment generation logic here
+        return jsonify({"comment": "Your generated comment here"}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 def generate_base32_secret_key():
     # Generate a random 20-byte key
