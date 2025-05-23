@@ -275,15 +275,17 @@ function showLimitReachedPopup() {
   });
 }
 
-
-
-
 async function generateComment(postText, emotion, commentBox, popup) {
   try {
     const userId = await getUserId();
     const response = await fetch('https://api.linkedgage.com/generate-comment', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json; charset=utf-8' },
+      headers: { 
+        'Content-Type': 'application/json; charset=utf-8',
+        'Accept': 'application/json'
+      },
+      credentials: 'include',
+      mode: 'cors',
       body: JSON.stringify({ text: postText, emotion: emotion.text, user_id: userId })
     });
 
@@ -295,6 +297,10 @@ async function generateComment(postText, emotion, commentBox, popup) {
       // Show custom limit reached popup
       showLimitReachedPopup();
       return;
+    }
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
 
     const result = await response.text();
@@ -311,9 +317,6 @@ async function generateComment(postText, emotion, commentBox, popup) {
     }
   }
 }
-
-
-
 
 function getUserId() {
   return new Promise((resolve, reject) => {

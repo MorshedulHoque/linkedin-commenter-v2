@@ -10,12 +10,13 @@
       "tabs", 
       "identity",
       "https://dashboard.linkedgage.com/*",
+      "https://api.linkedgage.com/*",
       "https://www.linkedin.com/*"
     ],
     "web_accessible_resources": [
       {
         "resources": ["icons/icon48.png"],
-        "matches": ["https://www.linkedin.com/*", "https://dashboard.linkedgage.com/*"]
+        "matches": ["https://www.linkedin.com/*", "https://dashboard.linkedgage.com/*", "https://api.linkedgage.com/*"]
       }
     ],
     "background": {
@@ -38,12 +39,13 @@
       "128": "icons/icon128.png"
     },
     "content_security_policy": {
-      "extension_pages": "script-src 'self' https://dashboard.linkedgage.com; object-src 'self'"
+      "extension_pages": "script-src 'self'; object-src 'self'"
     },
     
     "externally_connectable": {
       "matches": [
-          "https://*.chromiumapp.org/*"
+          "https://*.chromiumapp.org/*",
+          "https://dashboard.linkedgage.com/*"
       ]
   }
   }

@@ -20,7 +20,18 @@ load_dotenv()  # This loads the environment variables from a .env file
 app = Flask(__name__)
 
 # Enable CORS for all routes
-CORS(app)  # Add this line to enable CORS
+CORS(app, resources={
+    r"/*": {
+        "origins": [
+            "https://www.linkedin.com",
+            "chrome-extension://*",
+            "https://dashboard.linkedgage.com"
+        ],
+        "methods": ["GET", "POST", "OPTIONS"],
+        "allow_headers": ["Content-Type", "Authorization"],
+        "supports_credentials": True
+    }
+})
 
 def generate_base32_secret_key():
     # Generate a random 20-byte key
