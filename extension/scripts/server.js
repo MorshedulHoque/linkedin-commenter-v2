@@ -7,19 +7,24 @@ const app = express();
 const port = 3000;
 
 // Configure CORS with specific options
-app.use(cors({
+const corsOptions = {
   origin: 'https://www.linkedin.com',
   methods: ['GET', 'POST', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Accept', 'Origin'],
-  credentials: true
-}));
+  allowedHeaders: ['Content-Type', 'Accept', 'Origin', 'Authorization'],
+  credentials: true,
+  preflightContinue: false,
+  optionsSuccessStatus: 204
+};
+
+// Apply CORS middleware with options
+app.use(cors(corsOptions));
+
+// Handle preflight requests explicitly
+app.options('*', cors(corsOptions));
 
 app.use(express.json());
 
-// Handle preflight requests
-app.options('/generate-comment', cors());
-
-app.post('/generate-comment', async (req, res) => {
+app.post('/generate-comment', cors(corsOptions), async (req, res) => {
   const { text, emotion, user_id } = req.body;
 
   if (!text || !emotion || !user_id) {
@@ -92,6 +97,12 @@ app.post('/generate-comment', async (req, res) => {
 
     res.json({ comment: response.trim() });
   });
+});
+
+// Add error handling middleware
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ error: 'Something broke!' });
 });
 
 app.listen(port, () => {

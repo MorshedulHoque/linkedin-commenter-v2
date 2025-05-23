@@ -282,8 +282,7 @@ async function generateComment(postText, emotion, commentBox, popup) {
       method: 'POST',
       headers: { 
         'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'Origin': 'https://www.linkedin.com'
+        'Accept': 'application/json'
       },
       credentials: 'include',
       mode: 'cors',
