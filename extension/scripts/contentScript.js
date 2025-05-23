@@ -281,8 +281,9 @@ async function generateComment(postText, emotion, commentBox, popup) {
     const response = await fetch('https://api.linkedgage.com/generate-comment', {
       method: 'POST',
       headers: { 
-        'Content-Type': 'application/json; charset=utf-8',
-        'Accept': 'application/json'
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Origin': 'https://www.linkedin.com'
       },
       credentials: 'include',
       mode: 'cors',
@@ -310,6 +311,13 @@ async function generateComment(postText, emotion, commentBox, popup) {
     }
   } catch (error) {
     console.error('Error during comment generation:', error);
+    // Show error to user
+    const errorMessage = document.createElement('div');
+    errorMessage.style.color = 'red';
+    errorMessage.style.padding = '10px';
+    errorMessage.textContent = 'Failed to generate comment. Please try again.';
+    commentBox.appendChild(errorMessage);
+    setTimeout(() => errorMessage.remove(), 3000);
   } finally {
     // Ensure the interaction popup is removed if it hasn't been already
     if (popup && popup.parentNode) {
