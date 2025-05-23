@@ -47,10 +47,47 @@ def handle_options():
 def generate_comment():
     try:
         data = request.get_json()
-        # Your existing comment generation logic here
-        return jsonify({"comment": "Your generated comment here"}), 200
+        if not data or 'text' not in data or 'emotion' not in data or 'user_id' not in data:
+            return jsonify({"error": "Missing required fields"}), 400
+
+        # Check usage limits
+        today = datetime.date.today()
+        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        cursor.execute('SELECT request_count FROM daily_usage WHERE user_id = %s AND date = %s', 
+                      (data['user_id'], today))
+        usage = cursor.fetchone()
+
+        if usage and usage['request_count'] >= 10:  # Assuming 10 is the daily limit
+            return jsonify({"error": "Daily limit reached"}), 429
+
+        # Generate comment based on emotion
+        post_text = data['text']
+        emotion = data['emotion']
+        
+        # Your comment generation logic here
+        # This is a placeholder - replace with your actual comment generation logic
+        generated_comment = f"Thank you for sharing this insightful post! {emotion} perspective: {post_text[:50]}..."
+
+        # Log the comment
+        cursor.execute('INSERT INTO comments_history (user_id, post_text, generated_comment, emotion) VALUES (%s, %s, %s, %s)',
+                      (data['user_id'], post_text, generated_comment, emotion))
+        
+        # Update usage count
+        if usage:
+            cursor.execute('UPDATE daily_usage SET request_count = request_count + 1 WHERE user_id = %s AND date = %s',
+                          (data['user_id'], today))
+        else:
+            cursor.execute('INSERT INTO daily_usage (user_id, date, request_count) VALUES (%s, %s, 1)',
+                          (data['user_id'], today))
+        
+        mysql.connection.commit()
+        cursor.close()
+
+        return jsonify({"comment": generated_comment}), 200
+
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        print(f"Error generating comment: {str(e)}")
+        return jsonify({"error": "Internal server error"}), 500
 
 def generate_base32_secret_key():
     # Generate a random 20-byte key

@@ -88,7 +88,11 @@ function displayEmotionPopup(postText, commentBox) {
   closeButton.style.fontSize = "20px";
   closeButton.style.cursor = "pointer";
 
-  closeButton.onclick = () => document.body.removeChild(popup);
+  closeButton.onclick = () => {
+    if (popup.parentNode) {
+      document.body.removeChild(popup);
+    }
+  };
 
   const title = document.createElement("h3");
   title.textContent = "Choose a Tone";
@@ -114,14 +118,14 @@ function displayEmotionPopup(postText, commentBox) {
     button.style.cursor = "pointer";
     button.style.fontSize = "14px";
     button.style.position = 'relative';
-    button.style.transition = "transform 0.3s ease, background-color 0.3s ease"; // Transition for smooth zoom effect and background color change
+    button.style.transition = "transform 0.3s ease, background-color 0.3s ease";
     
     button.addEventListener('mouseover', () => {
-      button.style.transform = "scale(1.1)"; // Zoom in when hovered
+      button.style.transform = "scale(1.1)";
     });
   
     button.addEventListener('mouseout', () => {
-      button.style.transform = "scale(1)"; // Return to normal when not hovered
+      button.style.transform = "scale(1)";
     });
   
     button.addEventListener('click', async () => {
@@ -130,18 +134,19 @@ function displayEmotionPopup(postText, commentBox) {
       button.style.backgroundColor = '#ccc';
   
       const spinner = createSpinner();
-      button.appendChild(spinner); // Add spinner to button
+      button.appendChild(spinner);
   
       try {
-        await generateComment(postText, emotion, commentBox);
+        await generateComment(postText, emotion, commentBox, popup);
       } catch (error) {
         console.error('Error generating comment:', error);
       } finally {
-        button.removeChild(spinner);
+        if (spinner.parentNode) {
+          button.removeChild(spinner);
+        }
         button.style.backgroundColor = emotion.color;
         button.disabled = false;
       }
-      document.body.removeChild(popup);
     });
   
     popup.appendChild(button);
@@ -152,21 +157,16 @@ function displayEmotionPopup(postText, commentBox) {
     popup.style.opacity = "1";
     popup.style.transform = "translateY(0)";
   });
-  
-
-  document.body.appendChild(popup);
-  requestAnimationFrame(() => {
-    popup.style.opacity = "1";
-    popup.style.transform = "translateY(0)";
-  });
 
   // Close the popup when clicking outside
-  document.addEventListener('click', function closePopup(event) {
-    if (!popup.contains(event.target)) {
+  const closePopup = function(event) {
+    if (!popup.contains(event.target) && popup.parentNode) {
       document.body.removeChild(popup);
-      document.removeEventListener('click', closePopup); // Remove the event listener
+      document.removeEventListener('click', closePopup);
     }
-  }, true);
+  };
+  
+  document.addEventListener('click', closePopup, true);
 }
 
 // Function to add global spinner styles
@@ -310,7 +310,6 @@ async function generateComment(postText, emotion, commentBox, popup) {
     }
   } catch (error) {
     console.error('Error during comment generation:', error);
-    // Show error to user
     const errorMessage = document.createElement('div');
     errorMessage.style.color = 'red';
     errorMessage.style.padding = '10px';
@@ -320,7 +319,11 @@ async function generateComment(postText, emotion, commentBox, popup) {
     errorMessage.style.borderRadius = '4px';
     errorMessage.textContent = 'Failed to generate comment. Please try again.';
     commentBox.appendChild(errorMessage);
-    setTimeout(() => errorMessage.remove(), 3000);
+    setTimeout(() => {
+      if (errorMessage.parentNode) {
+        errorMessage.remove();
+      }
+    }, 3000);
   } finally {
     if (popup && popup.parentNode) {
       document.body.removeChild(popup);
