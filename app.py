@@ -22,11 +22,7 @@ app = Flask(__name__)
 # Enable CORS for all routes
 CORS(app, resources={
     r"/*": {
-        "origins": [
-            "https://www.linkedin.com",
-            "chrome-extension://*",
-            "https://dashboard.linkedgage.com"
-        ],
+        "origins": ["https://www.linkedin.com"],
         "methods": ["GET", "POST", "OPTIONS"],
         "allow_headers": ["Content-Type", "Authorization", "Accept"],
         "expose_headers": ["Content-Type", "Authorization"],
@@ -34,15 +30,6 @@ CORS(app, resources={
         "max_age": 3600
     }
 })
-
-# Add CORS headers to all responses
-@app.after_request
-def after_request(response):
-    response.headers.add('Access-Control-Allow-Origin', 'https://www.linkedin.com')
-    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization,Accept')
-    response.headers.add('Access-Control-Allow-Methods', 'GET,POST,OPTIONS')
-    response.headers.add('Access-Control-Allow-Credentials', 'true')
-    return response
 
 def generate_base32_secret_key():
     # Generate a random 20-byte key
