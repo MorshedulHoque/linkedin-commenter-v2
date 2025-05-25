@@ -103,6 +103,12 @@
                     return text.replace(/(\?){3,}/g, ''); // Removes three or more consecutive question marks
                 }
 
+                // Function to remove trailing ...more, ... more, ...see more, …more, … more, …see more from post text
+                function removeTrailingMore(text) {
+                    // Remove ...more, ... more, ...see more, …more, … more, …see more (with unicode ellipsis)
+                    return text.replace(/(\.{3}|…)(\s?see)?\s?more$/i, '').trim();
+                }
+
                 // AJAX request to get the comments
                 $.ajax({
                     url: '/get_comments_top5/{{ user_id }}', // Flask endpoint
@@ -114,6 +120,7 @@
                         comments.forEach(function(comment, index) {
                             // Clean the text before using it
                             comment.post_text = cleanText(comment.post_text);
+                            comment.post_text = removeTrailingMore(comment.post_text); // Remove trailing ...more
                             comment.generated_comment = cleanText(comment.generated_comment);
 
                             var postText = truncateText(comment.post_text, 50); // Adjust length here
@@ -124,11 +131,13 @@
                                             <th class="py-2 px-2 border-b border-gray-300 text-xs font-medium lg:py-2 lg:px-2 lg:text-xs xl:py-3 xl:px-3 xl:text-xs 2xl:py-3 2xl:px-3 2xl:text-xs">${index + 1}</th>
                                             <td class="py-2 px-2 border-b border-gray-300 lg:py-2 lg:px-2 lg:text-xs xl:py-3 xl:px-3 xl:text-xs 2xl:py-4 2xl:px-4 2xl:text-xs">
                                                 <div class="text-preview font-medium text-gray-800">${postText}</div>
-                                                <span class="show-more-post text-blue-600 cursor-pointer hover:underline" data-text="${comment.post_text}">Show More</span>
+                                                <span class="show-more-post text-blue-600 cursor-pointer hover:underline" data-index="${index}">Show More</span>
+                                                <div class="full-post-text" id="full-post-${index}" style="display:none;">${comment.post_text}</div>
                                             </td>
                                             <td class="py-2 px-2 border-b border-gray-300 lg:py-2 lg:px-2 lg:text-xs xl:py-2 xl:px-2 xl:text-xs 2xl:py-3 2xl:px-3 2xl:text-xs">
                                                 <div class="text-preview font-medium text-gray-800">${postComment}</div>
-                                                <span class="show-more-comment text-blue-600 cursor-pointer hover:underline" data-text="${comment.generated_comment}">Show More</span>
+                                                <span class="show-more-comment text-blue-600 cursor-pointer hover:underline" data-index="${index}">Show More</span>
+                                                <div class="full-comment-text" id="full-comment-${index}" style="display:none;">${comment.generated_comment}</div>
                                             </td>
                                             <td class="py-2 px-2 border-b border-gray-300 text-xs font-medium lg:py-2 lg:px-2 lg:text-xs xl:py-2 xl:px-2 xl:text-xs 2xl:py-3 2xl:px-3 2xl:text-xs">${comment.emotion}</td>
                                             <td class="py-2 px-2 border-b border-gray-300 text-xs font-medium lg:py-2 lg:px-2 lg:text-xs xl:py-2 xl:px-2 xl:text-xs 2xl:py-3 2xl:px-3 2xl:text-xs">${new Date(comment.created_at).toLocaleString()}</td>
@@ -140,20 +149,25 @@
                             var mobileRow = `
                             <div class="bg-white shadow-md rounded-lg p-4 mb-4">
                                 <div class="mb-2"><strong>Post Text:</strong> ${postText}</div>
+                                <span class="show-more-post text-blue-600 cursor-pointer hover:underline" data-index="${index}">Show More</span>
+                                <div class="full-post-text" id="full-post-mobile-${index}" style="display:none;">${comment.post_text}</div>
                                 <div class="mb-2"><strong>Generated Comment:</strong> ${postComment}</div>
+                                <span class="show-more-comment text-blue-600 cursor-pointer hover:underline" data-index="${index}">Show More</span>
+                                <div class="full-comment-text" id="full-comment-mobile-${index}" style="display:none;">${comment.generated_comment}</div>
                                 <div class="mb-2"><strong>Emotion:</strong> ${comment.emotion}</div>
                                 <div class="mb-2"><strong>Date:</strong> ${new Date(comment.created_at).toLocaleString()}</div>
-                                <div class="flex justify-between">
-                                    <span class="show-more-post text-blue-600 cursor-pointer hover:underline" data-text="${comment.post_text}">Show More</span>
-                                    <span class="show-more-comment text-blue-600 cursor-pointer hover:underline" data-text="${comment.generated_comment}">Show More</span>
-                                </div>
                             </div>`;
                             mobileBody.append(mobileRow);
                         });
 
                         // Show modal on click of Show more for post text
                         $(document).on('click', '.show-more-post', function() {
-                            var fullText = $(this).data('text');
+                            var index = $(this).data('index');
+                            var fullText = $(this).closest('td, .bg-white').find('.full-post-text').text();
+                            if (!fullText) {
+                                // Try mobile id
+                                fullText = $(`#full-post-mobile-${index}`).text();
+                            }
                             var modalContent = `<p><strong>Post Text:</strong> ${fullText}</p>`;
                             $('#modalContent').html(modalContent);
                             $('#modal').removeClass('hidden');
@@ -161,7 +175,12 @@
 
                         // Show modal on click of Show more for generated comment
                         $(document).on('click', '.show-more-comment', function() {
-                            var fullText = $(this).data('text');
+                            var index = $(this).data('index');
+                            var fullText = $(this).closest('td, .bg-white').find('.full-comment-text').text();
+                            if (!fullText) {
+                                // Try mobile id
+                                fullText = $(`#full-comment-mobile-${index}`).text();
+                            }
                             var modalContent = `<p><strong>Generated Comment:</strong> ${fullText}</p>`;
                             $('#modalContent').html(modalContent);
                             $('#modal').removeClass('hidden');

@@ -6,6 +6,22 @@
     <title>Creative Colorlib SignUp Form</title>
     <link href="{{ url_for('static', filename='style.css') }}" rel="stylesheet" type="text/css" media="all" />
     <link href="//fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i" rel="stylesheet">
+    <!-- Add Toastify CSS -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <!-- Add Toastify JS -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <style>
+        .toastify {
+            background: linear-gradient(to right, #ff5d5d, #ff6b6b);
+            border-radius: 8px;
+            padding: 16px;
+            font-family: 'Roboto', sans-serif;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        .toastify.success {
+            background: linear-gradient(to right, #00b09b, #00d5bc);
+        }
+    </style>
 </head>
 <body>
     <div class="main-w3layouts wrapper">
@@ -19,21 +35,53 @@
                 <!-- Display flash messages -->
                 {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
-                    <div>
+                    <div id="flash-messages" style="display: none;">
                         {% for category, message in messages %}
-                            <div class="alert alert-{{ category }}" role="alert">
-                                {{ message }}
-                            </div>
+                            <div data-category="{{ category }}" data-message="{{ message }}"></div>
                         {% endfor %}
                     </div>
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function() {
+                            const flashMessages = document.getElementById('flash-messages');
+                            const messages = Array.from(flashMessages.children);
+                            
+                            messages.forEach(function(element) {
+                                Toastify({
+                                    text: element.dataset.message,
+                                    duration: 3000,
+                                    gravity: "top",
+                                    position: "right",
+                                    className: element.dataset.category,
+                                    stopOnFocus: true,
+                                    onClick: function(){}
+                                }).showToast();
+                            });
+                        });
+                    </script>
                 {% endif %}
                 {% endwith %}
 
                 <form method="post">
                     <input class="text" type="text" name="full_name" placeholder="Full Name" required="">
                     <input class="text email" type="email" name="email" placeholder="Email" required="">
-                    <input class="text" type="password" name="password" placeholder="Password" required="">
-                    <input class="text w3lpass" type="password" name="confirm_password" placeholder="Confirm Password" required="">
+                    <div style="position: relative;">
+                        <input class="text" type="password" name="password" id="passwordInput" placeholder="Password" required="" autocomplete="new-password">
+                        <span id="togglePassword" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer;">
+                            <!-- Eye SVG icon (open by default) -->
+                            <svg id="eyeOpen" xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="white"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                            <!-- Eye-off SVG icon (hidden by default) -->
+                            <svg id="eyeClosed" xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="white" style="display:none;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a9.956 9.956 0 012.293-3.95m3.362-2.7A9.956 9.956 0 0112 5c4.478 0 8.268 2.943 9.542 7a9.965 9.965 0 01-4.293 5.03M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3l18 18"/></svg>
+                        </span>
+                    </div>
+                    <div style="position: relative; margin-top: 10px;">
+                        <input class="text w3lpass" type="password" name="confirm_password" id="confirmPasswordInput" placeholder="Confirm Password" required="" autocomplete="new-password">
+                        <span id="toggleConfirmPassword" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer;">
+                            <!-- Eye SVG icon (open by default) -->
+                            <svg id="eyeOpenConfirm" xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="white"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                            <!-- Eye-off SVG icon (hidden by default) -->
+                            <svg id="eyeClosedConfirm" xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="white" style="display:none;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a9.956 9.956 0 012.293-3.95m3.362-2.7A9.956 9.956 0 0112 5c4.478 0 8.268 2.943 9.542 7a9.965 9.965 0 01-4.293 5.03M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3l18 18"/></svg>
+                        </span>
+                    </div>
                     <div class="wthree-text">
                         <label class="anim">
                             <input type="checkbox" class="checkbox" required="">
@@ -59,5 +107,41 @@
             <li></li>
         </ul>
     </div>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Password field
+        const passwordInput = document.getElementById('passwordInput');
+        const togglePassword = document.getElementById('togglePassword');
+        const eyeOpen = document.getElementById('eyeOpen');
+        const eyeClosed = document.getElementById('eyeClosed');
+        togglePassword.addEventListener('click', function() {
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                eyeOpen.style.display = 'none';
+                eyeClosed.style.display = 'inline';
+            } else {
+                passwordInput.type = 'password';
+                eyeOpen.style.display = 'inline';
+                eyeClosed.style.display = 'none';
+            }
+        });
+        // Confirm password field
+        const confirmPasswordInput = document.getElementById('confirmPasswordInput');
+        const toggleConfirmPassword = document.getElementById('toggleConfirmPassword');
+        const eyeOpenConfirm = document.getElementById('eyeOpenConfirm');
+        const eyeClosedConfirm = document.getElementById('eyeClosedConfirm');
+        toggleConfirmPassword.addEventListener('click', function() {
+            if (confirmPasswordInput.type === 'password') {
+                confirmPasswordInput.type = 'text';
+                eyeOpenConfirm.style.display = 'none';
+                eyeClosedConfirm.style.display = 'inline';
+            } else {
+                confirmPasswordInput.type = 'password';
+                eyeOpenConfirm.style.display = 'inline';
+                eyeClosedConfirm.style.display = 'none';
+            }
+        });
+    });
+    </script>
 </body>
 </html>
