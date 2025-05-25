@@ -14,6 +14,7 @@ import base64
 import os
 import sys
 from dotenv import load_dotenv
+import requests
 
 load_dotenv()  # This loads the environment variables from a .env file
 
@@ -62,7 +63,22 @@ s = URLSafeTimedSerializer(app.config['SECRET_KEY'])
 
 mysql = MySQL(app)
 
+def load_disposable_domains():
+    blacklist_path = os.path.join(os.path.dirname(__file__), 'disposable_email_blocklist.conf')
+    if not os.path.exists(blacklist_path):
+        # Download the list if not present
+        url = 'https://raw.githubusercontent.com/disposable-email-domains/disposable-email-domains/master/disposable_email_blocklist.conf'
+        response = requests.get(url)
+        with open(blacklist_path, 'w', encoding='utf-8') as f:
+            f.write(response.text)
+    with open(blacklist_path, 'r', encoding='utf-8') as f:
+        return set(line.strip() for line in f if line.strip() and not line.startswith('#'))
 
+DISPOSABLE_DOMAINS = load_disposable_domains()
+
+def is_disposable_email(email):
+    domain = email.split('@')[-1].lower()
+    return domain in DISPOSABLE_DOMAINS
 
 @app.route('/')
 def home():
@@ -79,6 +95,11 @@ def register():
 
         # Store ext_id from the query parameters if present
         extension_id = request.args.get('ext_id', None)
+
+        # Block disposable email addresses
+        if is_disposable_email(email):
+            flash('Disposable email addresses are not allowed. Please use a real email.', 'danger')
+            return redirect(url_for('register', ext_id=extension_id))
 
         # Input validation
         if not re.match(r'[A-Za-z0-9]+', full_name) or not re.match(r'[^@]+@[^@]+\.[^@]+', email):
