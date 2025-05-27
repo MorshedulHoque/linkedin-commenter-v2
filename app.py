@@ -224,27 +224,27 @@ def login():
             flash('Incorrect password. Please try again.', 'danger')
             return render_template('login.html', ext_id=request.args.get('ext_id', ''))
 
-            # Successful login
-            session['email'] = email
-            session['full_name'] = account['full_name']
-            session['user_id'] = account['Id']  # Store user ID in session
-            
-            # Retrieve extension ID from the query string, not from form data
-            extension_id = request.args.get('ext_id', None)
-            if extension_id:
-                # If logged in via extension, redirect to a custom extension URL
-                full_name_encoded = quote(account['full_name'])
-                user_id = account['Id']
-                today = datetime.date.today()
-                cursor.execute('SELECT request_count FROM daily_usage WHERE user_id = %s AND date = %s', (user_id, today))
-                usage = cursor.fetchone()
-                request_count = usage['request_count'] if usage else 0
+        # Successful login
+        session['email'] = email
+        session['full_name'] = account['full_name']
+        session['user_id'] = account['Id']  # Store user ID in session
+        
+        # Retrieve extension ID from the query string, not from form data
+        extension_id = request.args.get('ext_id', None)
+        if extension_id:
+            # If logged in via extension, redirect to a custom extension URL
+            full_name_encoded = quote(account['full_name'])
+            user_id = account['Id']
+            today = datetime.date.today()
+            cursor.execute('SELECT request_count FROM daily_usage WHERE user_id = %s AND date = %s', (user_id, today))
+            usage = cursor.fetchone()
+            request_count = usage['request_count'] if usage else 0
 
-                # Redirect to an extension-specific URL with necessary parameters
-                return redirect(f'http://{extension_id}.chromiumapp.org/?name={full_name_encoded}&user_id={user_id}&request_count={request_count}')
-            else:
-                # Regular web login, redirect to dashboard
-                return redirect(url_for('dashboard'))
+            # Redirect to an extension-specific URL with necessary parameters
+            return redirect(f'http://{extension_id}.chromiumapp.org/?name={full_name_encoded}&user_id={user_id}&request_count={request_count}')
+        else:
+            # Regular web login, redirect to dashboard
+            return redirect(url_for('dashboard'))
 
     # GET request
     return render_template('login.html', ext_id=request.args.get('ext_id', ''))
