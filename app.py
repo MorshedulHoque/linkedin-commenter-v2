@@ -14,7 +14,7 @@ import base64
 import os
 import sys
 from dotenv import load_dotenv
-import requests
+import requests 
 
 load_dotenv()  # This loads the environment variables from a .env file
 
