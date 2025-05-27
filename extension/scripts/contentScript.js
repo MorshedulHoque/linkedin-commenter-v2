@@ -142,7 +142,7 @@ function displayEmotionPopup(postText, commentBox) {
         console.error('Error generating comment:', error);
       } finally {
         if (spinner.parentNode) {
-          button.removeChild(spinner);
+        button.removeChild(spinner);
         }
         button.style.backgroundColor = emotion.color;
         button.disabled = false;
@@ -151,7 +151,7 @@ function displayEmotionPopup(postText, commentBox) {
   
     popup.appendChild(button);
   });
-  
+
   document.body.appendChild(popup);
   requestAnimationFrame(() => {
     popup.style.opacity = "1";

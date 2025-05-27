@@ -1,7 +1,7 @@
 import fetch from 'node-fetch';
 import express from 'express';
 import cors from 'cors';
-import { spawn } from 'child_process';
+import { spawn } from 'child_process';  
 import path from 'path';
 
 const app = express();
@@ -92,17 +92,17 @@ app.post('/generate-comment', cors(corsOptions), async (req, res) => {
     // Log the generated comment into the database
     try {
       await fetch('https://dashboard.linkedgage.com/log_comment', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json; charset=utf-8'
-        },
-        body: JSON.stringify({
-          user_id: user_id,
-          post_text: text,
-          generated_comment: response.trim(),
-          emotion: emotion
-        })
-      });
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json; charset=utf-8'
+      },
+      body: JSON.stringify({
+        user_id: user_id,
+        post_text: text,
+        generated_comment: response.trim(),
+        emotion: emotion
+      })
+    });
     } catch (error) {
       console.error('Error logging comment:', error);
       // Continue even if logging fails
