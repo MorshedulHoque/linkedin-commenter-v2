@@ -19,19 +19,13 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             if (name && userId && requestCount) {
                 chrome.storage.local.set({
                     isLoggedIn: true,
-                    name: decodeURIComponent(name),
+                    name: decodeURIComponent(name),  // This is the name from the login flow
                     userId: userId,
                     requestCount: parseInt(requestCount, 10)
                 }, function () {
                     if (chrome.runtime.lastError) {
                         console.error('Error setting local storage:', chrome.runtime.lastError);
                     } else {
-                        // Close only the login window
-                        chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-                            if (tabs[0] && tabs[0].url.includes('dashboard.linkedgage.com/login')) {
-                                chrome.tabs.remove(tabs[0].id);
-                            }
-                        });
                         sendResponse({
                             isLoggedIn: true,
                             name: decodeURIComponent(name),
