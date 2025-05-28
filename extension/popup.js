@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     // Fetch user data from local storage
     chrome.storage.local.get(['name', 'isLoggedIn', 'userId'], (result) => {
-        console.log('Storage Result:', result);
+        //console.log('Storage Result:', result);
 
         // If logged in
         if (result.isLoggedIn && result.userId) {

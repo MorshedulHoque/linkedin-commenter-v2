@@ -46,7 +46,7 @@ async function run() {
           fullResponse = fullResponse.slice(1, -1);
         }
 
-        console.log(fullResponse);
+        // console.log(fullResponse);
       } else {
         throw new Error('Invalid response format: response.text is not a function.');
       }

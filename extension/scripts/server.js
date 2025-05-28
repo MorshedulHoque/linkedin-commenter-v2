@@ -31,11 +31,11 @@ app.get('/health', (req, res) => {
 });
 
 app.post('/generate-comment', cors(corsOptions), async (req, res) => {
-  console.log('Received request:', req.body);
+  //console.log('Received request:', req.body);
   const { text, emotion, user_id } = req.body;
 
   if (!text || !emotion || !user_id) {
-    console.log('Missing required fields:', { text: !!text, emotion: !!emotion, user_id: !!user_id });
+    //console.log('Missing required fields:', { text: !!text, emotion: !!emotion, user_id: !!user_id });
     res.status(400).json({ error: 'Missing postText, emotion, or user ID' });
     return;
   }
@@ -66,7 +66,7 @@ app.post('/generate-comment', cors(corsOptions), async (req, res) => {
   
   // Use absolute path for try.js
   const tryJsPath = path.join('/var/www/linkedin-commenter-v2/extension/scripts', 'try.js');
-  console.log('Using try.js at:', tryJsPath);
+  //console.log('Using try.js at:', tryJsPath);
   
   const child = spawn('node', [tryJsPath, prompt]);
 

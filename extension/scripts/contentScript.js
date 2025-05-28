@@ -1,12 +1,12 @@
 chrome.storage.local.get(['isLoggedIn'], (result) => {
   if (result.isLoggedIn) {
     addIconsToCommentBoxes();
-    console.log('User is logged in.');
+    //console.log('User is logged in.');
 
     const observer = new MutationObserver(addIconsToCommentBoxes);
     observer.observe(document.body, { childList: true, subtree: true });
   } else {
-    console.log('User is not logged in. Icons will not be added.');
+    //console.log('User is not logged in. Icons will not be added.');
   }
 });
 
@@ -33,7 +33,7 @@ function addIconsToCommentBoxes() {
         if (postText) {
           displayEmotionPopup(postText, commentBox);
         } else {
-          console.log('Could not find the post text.');
+          //console.log('Could not find the post text.');
         }
       });
     }
