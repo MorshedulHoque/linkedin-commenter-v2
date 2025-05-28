@@ -1,7 +1,7 @@
 {
     "manifest_version": 3,
     "name": "LinkedGage",
-    "version": "1.0",
+    "version": "1.0.0",
     "description": "Generates personalized comments on LinkedIn posts based on user-selected tones.",
     "permissions": [
       "activeTab",

@@ -177,7 +177,7 @@ def verify_otp():
         user_otp = request.form['otp']  # This will only be accessed if it's not a resend action
         if 'otp' in session and user_otp == session['otp']:
             cursor = mysql.connection.cursor()
-            cursor.execute('INSERT INTO user (full_name, email, password) VALUES (%s, %s, %s)', 
+            cursor.execute('INSERT INTO user (full_name, email, password, registration_date) VALUES (%s, %s, %s, NOW())', 
                            (session['full_name'], session['email'], session['password']))
             mysql.connection.commit()
 
