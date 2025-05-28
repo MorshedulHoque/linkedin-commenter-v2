@@ -519,6 +519,210 @@ def select_pro_plan():
 def select_pro_max_plan():
     return jsonify(message="Pro Max Plan accepted")
 
+# Admin Dashboard Routes
+@app.route('/admin/login', methods=['GET', 'POST'])
+def admin_login():
+    if request.method == 'POST':
+        email = request.form['email']
+        password = request.form['password']
+        
+        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        cursor.execute('SELECT * FROM admin WHERE email = %s', (email,))
+        admin = cursor.fetchone()
+
+        if admin and check_password_hash(admin['password'], password):
+            session['admin_id'] = admin['id']
+            session['admin_email'] = admin['email']
+            return redirect(url_for('admin_dashboard'))
+        else:
+            flash('Invalid admin credentials', 'danger')
+    
+    return render_template('admin/login.html')
+
+@app.route('/admin/dashboard')
+def admin_dashboard():
+    if 'admin_id' not in session:
+        return redirect(url_for('admin_login'))
+    
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    
+    # Get total users count
+    cursor.execute('SELECT COUNT(*) as total_users FROM user')
+    total_users = cursor.fetchone()['total_users']
+    
+    # Get new users in last 30 days
+    cursor.execute('SELECT COUNT(*) as new_users FROM user WHERE registration_date >= DATE_SUB(NOW(), INTERVAL 30 DAY)')
+    new_users = cursor.fetchone()['new_users']
+    
+    # Get total comments generated
+    cursor.execute('SELECT COUNT(*) as total_comments FROM comments_history')
+    total_comments = cursor.fetchone()['total_comments']
+    
+    # Get daily active users (users who generated comments today)
+    today = datetime.date.today()
+    cursor.execute('''
+        SELECT COUNT(DISTINCT user_id) as active_users 
+        FROM comments_history 
+        WHERE DATE(created_at) = %s
+    ''', (today,))
+    active_users = cursor.fetchone()['active_users']
+
+    # Get comments per day for the last 7 days
+    cursor.execute('''
+        SELECT DATE(created_at) as date, COUNT(*) as count 
+        FROM comments_history 
+        WHERE created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)
+        GROUP BY DATE(created_at)
+        ORDER BY date DESC
+    ''')
+    comments_by_day = cursor.fetchall()
+
+    # Get user growth for the last 7 days
+    cursor.execute('''
+        SELECT DATE(registration_date) as date, COUNT(*) as count 
+        FROM user 
+        WHERE registration_date >= DATE_SUB(NOW(), INTERVAL 7 DAY)
+        GROUP BY DATE(registration_date)
+        ORDER BY date DESC
+    ''')
+    users_by_day = cursor.fetchall()
+    
+    # Get recent users with their registration dates and activity
+    cursor.execute('''
+        SELECT u.id, u.full_name, u.email, u.registration_date,
+               COUNT(ch.id) as comment_count,
+               MAX(ch.created_at) as last_activity
+        FROM user u
+        LEFT JOIN comments_history ch ON u.id = ch.user_id
+        GROUP BY u.id
+        ORDER BY u.registration_date DESC
+        LIMIT 10
+    ''')
+    recent_users = cursor.fetchall()
+    
+    # Get top users by comment count with their activity
+    cursor.execute('''
+        SELECT u.id, u.full_name, u.email, 
+               COUNT(ch.id) as comment_count,
+               MAX(ch.created_at) as last_activity,
+               COUNT(DISTINCT DATE(ch.created_at)) as active_days
+        FROM user u 
+        LEFT JOIN comments_history ch ON u.id = ch.user_id 
+        GROUP BY u.id 
+        ORDER BY comment_count DESC 
+        LIMIT 10
+    ''')
+    top_users = cursor.fetchall()
+
+    # Get emotion distribution
+    cursor.execute('''
+        SELECT emotion, COUNT(*) as count
+        FROM comments_history
+        GROUP BY emotion
+        ORDER BY count DESC
+    ''')
+    emotion_stats = cursor.fetchall()
+    
+    cursor.close()
+    
+    return render_template('admin/dashboard.html',
+                         total_users=total_users,
+                         new_users=new_users,
+                         total_comments=total_comments,
+                         active_users=active_users,
+                         recent_users=recent_users,
+                         top_users=top_users,
+                         comments_by_day=comments_by_day,
+                         users_by_day=users_by_day,
+                         emotion_stats=emotion_stats)
+
+@app.route('/admin/users')
+def admin_users():
+    if 'admin_id' not in session:
+        return redirect(url_for('admin_login'))
+    
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    
+    # Get all users with their activity stats
+    cursor.execute('''
+        SELECT u.*, 
+               COUNT(ch.id) as total_comments,
+               MAX(ch.created_at) as last_activity,
+               COUNT(DISTINCT DATE(ch.created_at)) as active_days,
+               (SELECT COUNT(*) FROM daily_usage WHERE user_id = u.id) as total_days_used
+        FROM user u
+        LEFT JOIN comments_history ch ON u.id = ch.user_id
+        GROUP BY u.id
+        ORDER BY u.registration_date DESC
+    ''')
+    users = cursor.fetchall()
+    cursor.close()
+    
+    return render_template('admin/users.html', users=users)
+
+@app.route('/admin/comments')
+def admin_comments():
+    if 'admin_id' not in session:
+        return redirect(url_for('admin_login'))
+    
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    
+    # Get all comments with user information
+    cursor.execute('''
+        SELECT ch.*, u.full_name, u.email
+        FROM comments_history ch
+        JOIN user u ON ch.user_id = u.id
+        ORDER BY ch.created_at DESC
+        LIMIT 100
+    ''')
+    comments = cursor.fetchall()
+    cursor.close()
+    
+    return render_template('admin/comments.html', comments=comments)
+
+@app.route('/admin/user/<int:user_id>')
+def admin_user_detail(user_id):
+    if 'admin_id' not in session:
+        return redirect(url_for('admin_login'))
+    
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    
+    # Get user details
+    cursor.execute('SELECT * FROM user WHERE id = %s', (user_id,))
+    user = cursor.fetchone()
+    
+    if not user:
+        flash('User not found', 'danger')
+        return redirect(url_for('admin_users'))
+    
+    # Get user's comment history
+    cursor.execute('''
+        SELECT * FROM comments_history 
+        WHERE user_id = %s 
+        ORDER BY created_at DESC
+    ''', (user_id,))
+    comments = cursor.fetchall()
+    
+    # Get user's daily usage
+    cursor.execute('''
+        SELECT * FROM daily_usage 
+        WHERE user_id = %s 
+        ORDER BY date DESC
+    ''', (user_id,))
+    usage = cursor.fetchall()
+    
+    cursor.close()
+    
+    return render_template('admin/user_detail.html', 
+                         user=user, 
+                         comments=comments, 
+                         usage=usage)
+
+@app.route('/admin/logout')
+def admin_logout():
+    session.pop('admin_id', None)
+    session.pop('admin_email', None)
+    return redirect(url_for('admin_login'))
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
