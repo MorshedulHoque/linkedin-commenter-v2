@@ -10,13 +10,13 @@
 </head>
 <body class="bg-gray-100">
     <!-- Navigation -->
-    <nav class="bg-sky-900 text-white p-4">
+    <nav class="bg-sky-900 text-black p-4">
         <div class="container mx-auto flex justify-between items-center">
             <a href="{{ url_for('admin_dashboard') }}" class="text-xl font-bold text-black">LinkedGage Admin</a>
-            <div class="space-x-4">
-                <a href="{{ url_for('admin_users') }}" class="hover:text-gray-300">Users</a>
-                <a href="{{ url_for('admin_comments') }}" class="hover:text-gray-300">Comments</a>
-                <a href="{{ url_for('admin_logout') }}" class="hover:text-gray-300">Logout</a>
+            <div class="space-x-4 font-bold">
+                <a href="{{ url_for('admin_users') }}" class="hover:text-blue-600">Users</a>
+                <a href="{{ url_for('admin_comments') }}" class="hover:text-blue-600">Comments</a>
+                <a href="{{ url_for('admin_logout') }}" class="hover:text-blue-600">Logout</a>
             </div>
         </div>
     </nav>
