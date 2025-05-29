@@ -724,5 +724,32 @@ def admin_logout():
     session.pop('admin_email', None)
     return redirect(url_for('admin_login'))
 
+@app.route('/admin/reset_usage/<int:user_id>', methods=['POST'])
+def admin_reset_usage(user_id):
+    if 'admin_id' not in session:
+        return jsonify({"error": "Unauthorized"}), 401
+    
+    try:
+        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        today = datetime.date.today()
+        
+        # Delete today's usage record if it exists
+        cursor.execute('DELETE FROM daily_usage WHERE user_id = %s AND date = %s', (user_id, today))
+        
+        # Create a new record with 0 requests
+        cursor.execute('INSERT INTO daily_usage (user_id, date, request_count) VALUES (%s, %s, 0)', (user_id, today))
+        
+        mysql.connection.commit()
+        cursor.close()
+        
+        flash('Daily usage has been reset successfully', 'success')
+        return jsonify({"message": "Daily usage reset successfully"}), 200
+        
+    except Exception as e:
+        mysql.connection.rollback()
+        cursor.close()
+        flash('Error resetting daily usage', 'danger')
+        return jsonify({"error": str(e)}), 500
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

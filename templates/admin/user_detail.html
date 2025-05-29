@@ -62,8 +62,11 @@
 
         <!-- Usage Statistics -->
         <div class="bg-white rounded-lg shadow mb-8">
-            <div class="p-6 border-b">
+            <div class="p-6 border-b flex justify-between items-center">
                 <h2 class="text-2xl font-semibold text-gray-800">Usage Statistics</h2>
+                <button id="resetUsageBtn" class="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded transition-colors duration-300">
+                    Reset Today's Usage
+                </button>
             </div>
             <div class="p-6">
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -157,5 +160,35 @@
             </div>
         </div>
     </div>
+
+    <!-- Add this before the closing body tag -->
+    <script>
+    document.getElementById('resetUsageBtn').addEventListener('click', async function() {
+        if (!confirm('Are you sure you want to reset this user\'s daily usage? This action cannot be undone.')) {
+            return;
+        }
+
+        try {
+            const response = await fetch(`/admin/reset_usage/{{ user.id }}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                alert('Daily usage has been reset successfully');
+                location.reload(); // Refresh the page to show updated data
+            } else {
+                alert(data.error || 'Failed to reset daily usage');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('An error occurred while resetting daily usage');
+        }
+    });
+    </script>
 </body>
 </html> 
