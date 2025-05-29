@@ -13,16 +13,9 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('logout').classList.remove('hidden');
             document.getElementById('openDashboard').classList.remove('hidden');
 
-            // Show loading state
-            document.getElementById('loading').style.display = 'flex';
-            document.getElementById('content').style.display = 'none';
-
             // If we have cached data, show it immediately
             if (result.cachedUserData) {
                 updateUI(result.cachedUserData);
-                // Hide loading after showing cached data
-                document.getElementById('loading').style.display = 'none';
-                document.getElementById('content').style.display = 'block';
             }
 
             // Then fetch fresh data
@@ -40,14 +33,8 @@ document.addEventListener('DOMContentLoaded', () => {
         chrome.runtime.sendMessage({ action: "fetchRealTimeRequestCount", userId: userId }, (response) => {
             if (response && response.full_name && response.request_count !== undefined) {
                 updateUI(response);
-                // Hide loading after getting fresh data
-                document.getElementById('loading').style.display = 'none';
-                document.getElementById('content').style.display = 'block';
             } else if (response && response.error) {
                 console.error('Error:', response.error);
-                // Hide loading even if there's an error
-                document.getElementById('loading').style.display = 'none';
-                document.getElementById('content').style.display = 'block';
             }
         });
     }
