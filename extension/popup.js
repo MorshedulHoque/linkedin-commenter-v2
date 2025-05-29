@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     // Fetch user data from local storage
-    chrome.storage.local.get(['name', 'isLoggedIn', 'userId'], (result) => {
+    chrome.storage.local.get(['name', 'isLoggedIn', 'userId', 'cachedUserData'], (result) => {
         console.log('Storage Result:', result);
 
         // If logged in
@@ -9,12 +9,24 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('preLogin').classList.add('hidden');
             document.getElementById('postLogin').classList.remove('hidden');
 
-            // Fetch the latest full name and request count from the Flask backend
-            fetchRequestCountAndName(result.userId);
-
-            // Show the logout and dashboard buttons (remove the hidden class)
+            // Show the logout and dashboard buttons
             document.getElementById('logout').classList.remove('hidden');
             document.getElementById('openDashboard').classList.remove('hidden');
+
+            // Show loading state
+            document.getElementById('loading').style.display = 'flex';
+            document.getElementById('content').style.display = 'none';
+
+            // If we have cached data, show it immediately
+            if (result.cachedUserData) {
+                updateUI(result.cachedUserData);
+                // Hide loading after showing cached data
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('content').style.display = 'block';
+            }
+
+            // Then fetch fresh data
+            fetchRequestCountAndName(result.userId);
         } else {
             // Show pre-login UI
             document.getElementById('preLogin').classList.remove('hidden');
@@ -27,24 +39,49 @@ document.addEventListener('DOMContentLoaded', () => {
         // Send a message to background.js to get the real-time full name and request count
         chrome.runtime.sendMessage({ action: "fetchRealTimeRequestCount", userId: userId }, (response) => {
             if (response && response.full_name && response.request_count !== undefined) {
-                const requestLimit = 10; // Define the limit here (10 requests per day)
-                const requestsLeft = requestLimit - response.request_count; // Calculate how many requests are left
-
-                // Update the UI with the latest full name, request count, and how many requests are left
-                document.getElementById('userName').textContent = response.full_name;
-                document.getElementById('requestCount').textContent = 'Total requests made: ' + response.request_count;
-                document.getElementById('requestsLeft').textContent = 'Requests left today: ' + requestsLeft;
-
-                // Optionally update local storage with the new full name and request count
-                chrome.storage.local.set({
-                    name: response.full_name,
-                    requestCount: response.request_count
-                });
-            } else {
-                console.error('Error fetching full name or request count');
+                updateUI(response);
+                // Hide loading after getting fresh data
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('content').style.display = 'block';
+            } else if (response && response.error) {
+                console.error('Error:', response.error);
+                // Hide loading even if there's an error
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('content').style.display = 'block';
             }
         });
     }
+
+    function updateUI(data) {
+        document.getElementById('userName').textContent = data.full_name;
+        document.getElementById('requestCount').textContent = 'Total requests made: ' + data.request_count;
+        document.getElementById('requestsLeft').textContent = 'Requests left today: ' + (10 - data.request_count);
+    }
+
+    // Function to update request count immediately
+    function updateRequestCountImmediately(userId, newCount) {
+        chrome.runtime.sendMessage({ 
+            action: "updateRequestCount", 
+            userId: userId, 
+            newCount: newCount 
+        }, (response) => {
+            if (response && response.success) {
+                // Update UI with new count
+                chrome.storage.local.get(['cachedUserData'], (result) => {
+                    if (result.cachedUserData) {
+                        updateUI(result.cachedUserData);
+                    }
+                });
+            }
+        });
+    }
+
+    // Listen for storage changes
+    chrome.storage.onChanged.addListener((changes, namespace) => {
+        if (namespace === 'local' && changes.cachedUserData) {
+            updateUI(changes.cachedUserData.newValue);
+        }
+    });
 
     // Login button event listener
     document.getElementById('login').addEventListener('click', () => {
@@ -62,7 +99,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 location.reload(); // Refresh the page after logout
             }
         });
-        chrome.storage.local.remove(['name', 'isLoggedIn', 'userId', 'requestCount'], () => {
+        chrome.storage.local.remove(['name', 'isLoggedIn', 'userId', 'requestCount', 'cachedUserData'], () => {
             document.getElementById('preLogin').classList.remove('hidden');
             document.getElementById('postLogin').classList.add('hidden');
         });

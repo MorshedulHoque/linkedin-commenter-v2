@@ -1,3 +1,29 @@
+// Cache duration in milliseconds (5 minutes)
+const CACHE_DURATION = 5 * 60 * 1000;
+
+// Function to check if cached data is still valid
+function isCacheValid(cachedData) {
+    if (!cachedData || !cachedData.lastUpdated) return false;
+    return (Date.now() - cachedData.lastUpdated) < CACHE_DURATION;
+}
+
+// Function to update cache with new request count
+function updateRequestCount(userId, newCount) {
+    chrome.storage.local.get(['cachedUserData'], (result) => {
+        if (result.cachedUserData) {
+            const updatedData = {
+                ...result.cachedUserData,
+                request_count: newCount,
+                lastUpdated: Date.now()
+            };
+            chrome.storage.local.set({
+                cachedUserData: updatedData,
+                requestCount: newCount
+            });
+        }
+    });
+}
+
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.action === "login") {
         const loginUrl = `https://dashboard.linkedgage.com/login?ext_id=${chrome.runtime.id}`;
@@ -73,43 +99,116 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     }
     else if (request.action === "fetchRealTimeRequestCount") {
         const userId = request.userId;
-        const fetchUrl = `https://dashboard.linkedgage.com/get_request_count/${userId}`;
-
-        fetch(fetchUrl)
-        .then(response => response.json())
-        .then(data => {
-            if (data.full_name && data.request_count !== undefined) {
-                console.log('Real-time full name:', data.full_name);
-                console.log('Real-time request count:', data.request_count);
-
-                // Update the local storage with the updated full name and request count
-                chrome.storage.local.set({
-                    name: data.full_name,  // Update the name to always fetch the latest one
-                    requestCount: data.request_count
-                }, function () {
-                    if (chrome.runtime.lastError) {
-                        console.error('Error setting local storage:', chrome.runtime.lastError);
-                    } else {
-                        sendResponse({
-                            full_name: data.full_name,
-                            request_count: data.request_count
-                        });
-                    }
-                });
-            } else {
-                console.error('Missing full_name or request_count in response');
-                sendResponse({ error: "Missing full_name or request_count in response" });
+        
+        // First check if we have valid cached data
+        chrome.storage.local.get(['cachedUserData'], (result) => {
+            if (result.cachedUserData && isCacheValid(result.cachedUserData)) {
+                // Return cached data immediately
+                sendResponse(result.cachedUserData);
             }
-        })
-        .catch(error => {
-            console.error('Error fetching request count:', error);
-            sendResponse({ error: "Failed to fetch request count" });
-        });
+            
+            // Then fetch fresh data
+            const fetchUrl = `https://dashboard.linkedgage.com/get_request_count/${userId}`;
+            fetch(fetchUrl)
+            .then(response => response.json())
+            .then(data => {
+                if (data.full_name && data.request_count !== undefined) {
+                    console.log('Real-time full name:', data.full_name);
+                    console.log('Real-time request count:', data.request_count);
 
+                    const userData = {
+                        full_name: data.full_name,
+                        request_count: data.request_count,
+                        lastUpdated: Date.now()
+                    };
+
+                    // Cache the data
+                    chrome.storage.local.set({
+                        name: data.full_name,
+                        requestCount: data.request_count,
+                        cachedUserData: userData
+                    }, function () {
+                        if (chrome.runtime.lastError) {
+                            console.error('Error setting local storage:', chrome.runtime.lastError);
+                        } else {
+                            sendResponse(userData);
+                        }
+                    });
+                } else {
+                    console.error('Missing full_name or request_count in response');
+                    sendResponse({ error: "Missing full_name or request_count in response" });
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching request count:', error);
+                // If we have cached data, return it even if expired
+                if (result.cachedUserData) {
+                    sendResponse(result.cachedUserData);
+                } else {
+                    sendResponse({ error: "Failed to fetch request count" });
+                }
+            });
+        });
+        return true;
+    }
+    else if (request.action === "updateRequestCount") {
+        // Update cache immediately after generating a comment
+        updateRequestCount(request.userId, request.newCount);
+        sendResponse({ success: true });
         return true;
     }
     else if (request.action === "openDashboard") {
         chrome.tabs.create({ url: chrome.runtime.getURL('dashboard.html') });
         sendResponse({ status: "Dashboard opened" });
     }
+});
+
+// Periodically update cached data
+setInterval(() => {
+    chrome.storage.local.get(['userId', 'cachedUserData'], (result) => {
+        if (result.userId && (!result.cachedUserData || !isCacheValid(result.cachedUserData))) {
+            const fetchUrl = `https://dashboard.linkedgage.com/get_request_count/${result.userId}`;
+            fetch(fetchUrl)
+            .then(response => response.json())
+            .then(data => {
+                if (data.full_name && data.request_count !== undefined) {
+                    chrome.storage.local.set({
+                        name: data.full_name,
+                        requestCount: data.request_count,
+                        cachedUserData: {
+                            full_name: data.full_name,
+                            request_count: data.request_count,
+                            lastUpdated: Date.now()
+                        }
+                    });
+                }
+            })
+            .catch(error => console.error('Error updating cache:', error));
+        }
+    });
+}, CACHE_DURATION);
+
+// Pre-fetch data when extension icon is clicked
+chrome.action.onClicked.addListener((tab) => {
+    chrome.storage.local.get(['userId', 'cachedUserData'], (result) => {
+        if (result.userId && (!result.cachedUserData || !isCacheValid(result.cachedUserData))) {
+            const fetchUrl = `https://dashboard.linkedgage.com/get_request_count/${result.userId}`;
+            fetch(fetchUrl)
+            .then(response => response.json())
+            .then(data => {
+                if (data.full_name && data.request_count !== undefined) {
+                    chrome.storage.local.set({
+                        name: data.full_name,
+                        requestCount: data.request_count,
+                        cachedUserData: {
+                            full_name: data.full_name,
+                            request_count: data.request_count,
+                            lastUpdated: Date.now()
+                        }
+                    });
+                }
+            })
+            .catch(error => console.error('Error pre-fetching data:', error));
+        }
+    });
 });

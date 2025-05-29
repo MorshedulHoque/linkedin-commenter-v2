@@ -3,11 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LinkedGage</title>
-    <link href="styles/output.css" rel="stylesheet"> <!-- Link to compiled CSS -->
+    <title>Login with Flask</title>
+    <link href="styles/output.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles/popup.css">
 </head>
 <body class="font-sans text-center p-5 bg-gray-100 w-[300px] h-[350px] flex justify-center items-center bg-gradient-to-tr from-customDark to-customBlue">
-    <!-- New design section -->
+    <!-- Loading State -->
+    <div id="loading" class="loading-container" style="display: none;">
+        <div class="loading-spinner"></div>
+        <p class="text-white">Loading...</p>
+    </div>
+
+    <!-- Pre-Login Content -->
     <div id="preLogin" class="p-4 w-full h-full flex flex-col justify-between">
         <div class="flex flex-col items-start mb-4 w-full">
             <h1 id="greeting" class="text-xl font-bold mb-6 text-red-600 relative bg-red-100 border-2 border-red-600 rounded-lg p-4 flex items-center">
@@ -30,16 +37,18 @@
 
     <!-- Post-login section -->
     <div id="postLogin" class="hidden p-4 w-full h-full flex flex-col justify-between">
-        <h1 id="greetingLoggedIn" class="font-bold mb-4 text-2xl text-white">Hi, <span id="userName"></span></h1>
-        <div>
-            <h2 id="requestCount" class="text-lg text-white"></h2>
-            <h2 id="requestsLeft" class="text-lg text-white"></h2>
+        <!-- Content that will be shown after loading -->
+        <div id="content" style="display: none;">
+            <h1 id="greetingLoggedIn" class="font-bold mb-4 text-2xl text-white">Hi, <span id="userName"></span></h1>
+            <div class="mb-6">
+                <h2 id="requestCount" class="text-lg text-white"></h2>
+                <h2 id="requestsLeft" class="text-lg text-white"></h2>
+            </div>
+            <div class="flex flex-col gap-2">
+                <button id="logout" class="px-4 py-2 rounded bg-red-600 text-white text-base cursor-pointer transition-colors duration-300 hover:bg-red-800 mb-2 hidden">Logout</button>
+                <button id="openDashboard" class="px-4 py-2 rounded bg-sky-700 text-white text-base cursor-pointer transition-colors duration-300 hover:bg-sky-800 mb-2 hidden">Dashboard</button>
+            </div>
         </div>
-        <div class="flex flex-col gap-2">
-            <button id="logout" class="px-4 py-2 rounded bg-red-600 text-white text-base cursor-pointer transition-colors duration-300 hover:bg-red-800 mb-2 hidden">Logout</button>
-            <button id="openDashboard" class="px-4 py-2 rounded bg-sky-700 text-white text-base cursor-pointer transition-colors duration-300 hover:bg-sky-800 mb-2 hidden">Dashboard</button>
-        </div>
-        
     </div>
 
     <script src="popup.js"></script>
