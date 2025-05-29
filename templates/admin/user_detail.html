@@ -64,7 +64,11 @@
         <div class="bg-white rounded-lg shadow mb-8">
             <div class="p-6 border-b flex justify-between items-center">
                 <h2 class="text-2xl font-semibold text-gray-800">Usage Statistics</h2>
-                <button id="resetUsageBtn" class="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded transition-colors duration-300">
+                <!-- Debug info -->
+                <div class="text-sm text-gray-500 mr-4">
+                    User ID: {{ user.Id }}
+                </div>
+                <button id="resetUsageBtn" data-user-id="{{ user.Id }}" class="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded transition-colors duration-300">
                     Reset Today's Usage
                 </button>
             </div>
@@ -168,25 +172,36 @@
             return;
         }
 
+        const userId = this.getAttribute('data-user-id');
+        console.log('User ID from button:', userId);
+        
+        if (!userId) {
+            alert('Error: User ID not found');
+            return;
+        }
+        
         try {
-            const response = await fetch(`/admin/reset_usage/{{ user.id }}`, {
+            const response = await fetch(`/admin/reset_usage/${userId}`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
-                }
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                credentials: 'same-origin'
             });
 
-            const data = await response.json();
-
-            if (response.ok) {
-                alert('Daily usage has been reset successfully');
-                location.reload(); // Refresh the page to show updated data
-            } else {
-                alert(data.error || 'Failed to reset daily usage');
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Failed to reset daily usage');
             }
+
+            const data = await response.json();
+            console.log('Response data:', data);
+            alert('Daily usage has been reset successfully');
+            location.reload();
         } catch (error) {
-            console.error('Error:', error);
-            alert('An error occurred while resetting daily usage');
+            console.error('Error details:', error);
+            alert(error.message || 'An error occurred while resetting daily usage. Please try again.');
         }
     });
     </script>

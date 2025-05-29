@@ -733,6 +733,12 @@ def admin_reset_usage(user_id):
         cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
         today = datetime.date.today()
         
+        # First check if user exists
+        cursor.execute('SELECT Id FROM user WHERE Id = %s', (user_id,))
+        user = cursor.fetchone()
+        if not user:
+            return jsonify({"error": "User not found"}), 404
+        
         # Delete today's usage record if it exists
         cursor.execute('DELETE FROM daily_usage WHERE user_id = %s AND date = %s', (user_id, today))
         
@@ -742,13 +748,16 @@ def admin_reset_usage(user_id):
         mysql.connection.commit()
         cursor.close()
         
-        flash('Daily usage has been reset successfully', 'success')
-        return jsonify({"message": "Daily usage reset successfully"}), 200
+        return jsonify({
+            "message": "Daily usage reset successfully",
+            "user_id": user_id,
+            "date": today.isoformat()
+        }), 200
         
     except Exception as e:
+        print(f"Error resetting usage for user {user_id}: {str(e)}")  # Add server-side logging
         mysql.connection.rollback()
         cursor.close()
-        flash('Error resetting daily usage', 'danger')
         return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
