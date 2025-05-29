@@ -62,7 +62,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             credentials: 'include' // Important to handle cookies if using session-based auth
         }).then(() => {
             chrome.storage.local.remove(['isLoggedIn', 'name', 'userId', 'requestCount'], () => {
-                //console.log('User logged out and local storage cleared.');
+                console.log('User logged out and local storage cleared.');
                 sendResponse({ isLoggedIn: false, message: "Logged out successfully" });
             });
         }).catch(error => {
@@ -79,8 +79,8 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         .then(response => response.json())
         .then(data => {
             if (data.full_name && data.request_count !== undefined) {
-                //console.log('Real-time full name:', data.full_name);
-                //console.log('Real-time request count:', data.request_count);
+                console.log('Real-time full name:', data.full_name);
+                console.log('Real-time request count:', data.request_count);
 
                 // Update the local storage with the updated full name and request count
                 chrome.storage.local.set({

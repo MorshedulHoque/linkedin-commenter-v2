@@ -1,12 +1,12 @@
 chrome.storage.local.get(['isLoggedIn'], (result) => {
   if (result.isLoggedIn) {
     addIconsToCommentBoxes();
-    //console.log('User is logged in.');
+    console.log('User is logged in.');
 
     const observer = new MutationObserver(addIconsToCommentBoxes);
     observer.observe(document.body, { childList: true, subtree: true });
   } else {
-    //console.log('User is not logged in. Icons will not be added.');
+    console.log('User is not logged in. Icons will not be added.');
   }
 });
 
@@ -33,7 +33,7 @@ function addIconsToCommentBoxes() {
         if (postText) {
           displayEmotionPopup(postText, commentBox);
         } else {
-          //console.log('Could not find the post text.');
+          console.log('Could not find the post text.');
         }
       });
     }
@@ -303,9 +303,27 @@ async function generateComment(postText, emotion, commentBox, popup) {
     }
 
     const result = await response.json();
-    const commentEditor = commentBox.querySelector('.ql-editor');
-    if (commentEditor) {
-      commentEditor.innerText = result.comment;
+    
+    // Try different selectors for the comment input
+    const commentInput = commentBox.querySelector('.ql-editor') || 
+                        commentBox.querySelector('.comments-comment-box-comment__text-editor') ||
+                        commentBox.querySelector('[contenteditable="true"]');
+    
+    if (commentInput) {
+      // Set the text content
+      commentInput.innerText = result.comment;
+      
+      // Trigger input event to ensure LinkedIn recognizes the change
+      const inputEvent = new Event('input', {
+        bubbles: true,
+        cancelable: true,
+      });
+      commentInput.dispatchEvent(inputEvent);
+      
+      // Focus the input
+      commentInput.focus();
+    } else {
+      throw new Error('Could not find comment input field');
     }
   } catch (error) {
     console.error('Error during comment generation:', error);
