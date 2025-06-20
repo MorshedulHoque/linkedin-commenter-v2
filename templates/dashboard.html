@@ -79,10 +79,10 @@
 
         <!-- Modal -->
         <div id="modal" class="fixed inset-0 z-50 hidden bg-gray-800 bg-opacity-75 flex items-center justify-center p-4">
-            <div class="bg-white rounded-lg p-6 w-full max-w-lg">
+            <div class="bg-white rounded-lg p-6 w-full max-w-lg max-h-[80vh] flex flex-col">
                 <h2 class="text-xl font-semibold mb-4 text-black">Details</h2>
-                <div id="modalContent" class="text-black"></div>
-                <button id="closeModal" class="mt-4 text-white bg-sky-900 hover:bg-sky-950 px-4 py-2 rounded">Close</button>
+                <div id="modalContent" class="text-black overflow-y-auto flex-1 max-h-[60vh] pr-2"></div>
+                <button id="closeModal" class="mt-4 text-white bg-sky-900 hover:bg-sky-950 px-4 py-2 rounded self-end">Close</button>
             </div>
         </div>
 
