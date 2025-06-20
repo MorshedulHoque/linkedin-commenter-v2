@@ -45,7 +45,7 @@
     <!-- ================ Recent Orders List ================= -->
     <div class="bg-white rounded-lg shadow-lg">
         <div class="p-4 border-b flex justify-between items-center">
-            <h2 class="text-lg font-semibold text-black">Recent Comments new2</h2>
+            <h2 class="text-lg font-semibold text-black">Recent Comments</h2>
             <a href="{{ url_for('table') }}" class="text-blue-500 hover:underline flex items-center space-x-2">View All</a>
         </div>
 
@@ -81,7 +81,7 @@
         <div id="modal" class="fixed inset-0 z-50 hidden bg-gray-800 bg-opacity-75 flex items-center justify-center p-4">
             <div class="bg-white rounded-lg p-6 w-full max-w-lg max-h-[90vh] flex flex-col">
                 <h2 class="text-xl font-semibold mb-4 text-black flex-shrink-0">Details</h2>
-                <div id="modalContent" class="text-black overflow-y-auto flex-1"></div>
+                <div id="modalContent" class="text-black overflow-y-auto flex-1 min-h-0"></div>
                 <button id="closeModal" class="mt-4 text-white bg-sky-900 hover:bg-sky-950 px-4 py-2 rounded self-end flex-shrink-0">Close</button>
             </div>
         </div>
